@@ -1,5 +1,10 @@
 {
   "compilerOptions": {
+    "declaration": true,
+    "emitDeclarationOnly": true,
+    "outDir": "dist",
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
     "target": "ES2020",
     "useDefineForClassFields": true,
     "lib": ["ES2020", "DOM", "DOM.Iterable"],
@@ -7,11 +12,11 @@
     "skipLibCheck": true,
 
     /* Bundler mode */
-    "moduleResolution": "bundler",
+    "moduleResolution": "bundler", //Why our moduleResolution is set to bundler and not Node?
     "allowImportingTsExtensions": true,
     "isolatedModules": true,
     "moduleDetection": "force",
-    "noEmit": true,
+    //"noEmit": true,
     "jsx": "react-jsx",
 
     /* Linting */
