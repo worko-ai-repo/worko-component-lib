@@ -50,7 +50,7 @@ export type DashboardSidebarType = 'CORPORATE' | 'EMPLOYEE' | 'CANDIDATE' | 'ADM
 export const DashboardProvider = ({ children }: { children: ReactNode }) => {
     const [activeTab, setActiveTab] = useState<Tab>('home');
     const [user, setUser] = useState<CognitoUserDetails | null>(null);
-    const [activeSidebar, setActiveSidebar] = useState<DashboardSidebarType>('CORPORATE');
+    const [activeSidebar] = useState<DashboardSidebarType>('CORPORATE');
 
     useEffect(() => {
         const userDetails = secureStorage.getItem(SecureStorageKeyEnum.COGNITOUSERDETAILS);

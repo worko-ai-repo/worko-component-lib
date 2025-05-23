@@ -1,4 +1,4 @@
-import { ApplicantsIcon, BulkCVIcon, HomeIcon, InterviewIcon, InviteIcon, InvoiceAndPaymentIcon, JobIcon, ReferralIcon, SupportIcon } from "./icons";
+import { ApplicantsIcon, BulkCVIcon, HomeIcon, InviteIcon, InvoiceAndPaymentIcon, JobIcon, ReferralIcon, SupportIcon } from "./icons";
 import { NavItem } from "../../types/sidebar";
 
 // Define navigation items for all dashboard types

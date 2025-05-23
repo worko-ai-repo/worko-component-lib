@@ -35,20 +35,20 @@ interface AuthResponse<T = any> {
 /**
  * Interface for storage service
  */
-interface IStorageService {
-	get(key: string): string;
-	set(key: string, value: string): void;
-	remove(key: string): void;
-}
+// interface IStorageService {
+// 	get(key: string): string;
+// 	set(key: string, value: string): void;
+// 	remove(key: string): void;
+// }
 
 /**
  * CognitoService class for handling AWS Cognito authentication
  */
 class CognitoService {
 	private authenticationSubject: BehaviorSubject<boolean>;
-	private linkedinAccessToken: string = '';
+	//private linkedinAccessToken: string = '';
 	private UserRegistered: boolean = false;
-	private linkedinSignInDetails: any;
+	public linkedinSignInDetails: any;
 
 	/**
 	 * Constructor for CognitoService

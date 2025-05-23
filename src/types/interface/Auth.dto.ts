@@ -1,5 +1,4 @@
 import { File } from 'buffer';
-import { Upload } from 'lucide-react';
 
 export interface AuthSignupBaseDto {
 	name: string;
