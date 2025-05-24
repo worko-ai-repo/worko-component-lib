@@ -1,270 +1,189 @@
-# Micro UI Kit
-
-A comprehensive, modular component library designed for microfrontend architectures. This library provides reusable components, hooks, utilities, and services that can be shared across different microfrontends.
-
-## Installation
-
-bash
-npm install micro-ui-kit
 
 
-## Quick Start
+#  Multi-App Dev Setup with Shared Library (No Monorepo Tools)
 
-1. Install the package in your React application:
-   
-bash
-   npm install micro-ui-kit
+This project simulates a monorepo-like environment using **plain `npm`**, allowing you to run multiple apps with a shared component library using **Hot Module Replacement (HMR)** — all without using `pnpm`, `turbo`, or similar tools.
 
+---
 
-2. Import and use components:
-   
-tsx
-   import { Button, Card, useMediaQuery } from 'micro-ui-kit';
+##  Project Structure
 
-   function App() {
-     const isMobile = useMediaQuery('(max-width: 768px)');
+```
+your-project/
+├── apps/
+│   ├── main-app/
+│   │   ├── package.json
+│   │   ├── tsconfig.app.json      # For setting up aliases
+│   │   ├── vite.config.ts         # Vite alias config for HMR
+│   └── dashboard-app/
+│       ├── package.json
+│       ├── tsconfig.app.json
+│       ├── vite.config.ts
+├── packages/
+│   └── lib-worko-ai/
+│       ├── src/
+│       │   └── index.ts           # Shared modules/components/hooks
+│       └── package.json           # Exports and metadata
+├── package.json                   # Root-level scripts (e.g. dev)
+```
 
-     return (
-       <Card>
-         <Button variant="primary">Click me</Button>
-       </Card>
-     );
-   }
+---
 
+##  Step-by-Step Setup
 
-## Project Structure
+### 1.  Create the Shared Library (`lib-worko-ai`)
 
-src/
-├── components/           # Reusable UI components
-│   ├── ui/              # Basic UI components (Button, Card, etc.)
-│   ├── layout/          # Layout components (Container, Grid, etc.)
-│   ├── feedback/        # User feedback components (Toast, Alert, etc.)
-│   └── form/            # Form-related components (Input, Select, etc.)
-├── hooks/               # Custom React hooks
-├── contexts/            # React context providers
-├── services/            # API and storage services
-├── utils/               # Utility functions
-├── types/              # TypeScript types and interfaces
-└── styles/             # Global styles and theme definitions
+**Path:** `packages/lib-worko-ai/`
 
+#### `package.json`
 
-## Available Components
+```json
+{
+  "name": "lib-worko-ai",
+  "version": "1.0.0",
+  "main": "src/index.ts",
+  "module": "src/index.ts",
+  "types": "src/index.ts"
+}
+```
 
-### UI Components
+#### `src/index.ts`
 
-- Button: Customizable button component with different variants
-  
-tsx
-  import { Button } from 'micro-ui-kit';
-  
-  <Button 
-    variant="primary" 
-    size="md" 
-    onClick={() => console.log('clicked')}
-  >
-    Click me
-  </Button>
+Export your reusable modules here:
 
+```ts
+export const sayHello = () => 'Hello from lib!';
+```
 
-- Card: Container component for content grouping
-  
-tsx
-  import { Card } from 'micro-ui-kit';
-  
-  <Card padding="lg" shadow="md">
-    <h2>Card Title</h2>
-    <p>Card content</p>
-  </Card>
+#### 1.1 Link the Package
 
+At the root of `lib-worko-ai`, run:
 
-### Form Components
+```bash
+npm install
+npm link
+```
 
-- Input: Text input component with built-in validation
-  
-tsx
-  import { Input } from 'micro-ui-kit';
-  
-  <Input
-    type="email"
-    placeholder="Enter email"
-    onChange={(value) => console.log(value)}
-    validation={{
-      required: true,
-      pattern: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i
-    }}
-  />
+This broadcasts the library globally for local linking.
 
+---
 
-### Layout Components
+### 2.  Set Up Each App to Use the Library
 
-- Container: Responsive container with customizable max-width
-  
-tsx
-  import { Container } from 'micro-ui-kit';
-  
-  <Container maxWidth="lg" padding="md">
-    {/* Content */}
-  </Container>
+Inside each app (`apps/main-app`, `apps/dashboard-app`):
 
+#### 2.1 Install dependencies
 
-### Feedback Components
+```bash
+npm install
+```
 
-- Toast: Notification component for user feedback
-  
-tsx
-  import { Toast, useNotification } from 'micro-ui-kit';
-  
-  function App() {
-    const { showNotification } = useNotification();
-    
-    return (
-      <button onClick={() => showNotification('Success!', 'success')}>
-        Show Toast
-      </button>
-    );
+#### 2.2 Link the shared library
+
+```bash
+npm link lib-worko-ai
+```
+
+#### 2.3 Example `package.json`
+
+```json
+{
+  "name": "main-app",
+  "version": "1.0.0",
+  "scripts": {
+    "dev": "vite"
+  },
+  "dependencies": {
+    "lib-worko-ai": "file:../../packages/lib-worko-ai"
   }
-
-
-## Custom Hooks
-
-### useMediaQuery
-Hook for responsive design:
-tsx
-import { useMediaQuery } from 'micro-ui-kit';
-
-function Component() {
-  const isMobile = useMediaQuery('(max-width: 768px)');
-  return isMobile ? <MobileView /> : <DesktopView />;
 }
+```
 
+> If you see `file:...` under `dependencies`, the link is working.
 
-### useLocalStorage
-Hook for persistent storage:
-tsx
-import { useLocalStorage } from 'micro-ui-kit';
+Repeat the same for `dashboard-app`.
 
-function Component() {
-  const [theme, setTheme] = useLocalStorage('theme', 'light');
-  return (
-    <button onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')}>
-      Toggle Theme
-    </button>
-  );
+---
+
+### 3. Enable HMR with Vite Aliasing
+
+Edit `vite.config.ts` in each app:
+
+```ts
+import { defineConfig } from 'vite';
+import react from '@vitejs/plugin-react';
+import path from 'path';
+
+export default defineConfig({
+  plugins: [react()],
+  resolve: {
+    alias: {
+      '@LibWorko': path.resolve(__dirname, '../../packages/lib-worko-ai/src')
+    }
+  },
+  optimizeDeps: {
+    exclude: ['lib-worko-ai'],
+  },
+  server: {
+    fs: {
+      allow: ['..'], // Allow access to shared packages
+    },
+  },
+});
+```
+
+> You can now import shared modules using `@LibWorko`:
+
+```ts
+import { sayHello } from '@LibWorko';
+```
+
+>  Make sure to **remove the alias before production builds**, or handle it via `tsconfig`/`paths`.
+
+---
+
+### 4.  Add a Root Script to Run Both Apps
+
+In the root `package.json`:
+
+```json
+{
+  "name": "dev-root",
+  "private": true,
+  "scripts": {
+    "dev": "concurrently \"npm --prefix apps/main-app run dev\" \"npm --prefix apps/dashboard-app run dev\""
+  },
+  "devDependencies": {
+    "concurrently": "^8.0.0"
+  }
 }
+```
 
+Then install:
 
-### useDebounce
-Hook for debouncing values:
-tsx
-import { useDebounce } from 'micro-ui-kit';
+```bash
+npm install --save-dev concurrently
+```
 
-function SearchComponent() {
-  const [search, setSearch] = useState('');
-  const debouncedSearch = useDebounce(search, 300);
-  
-  useEffect(() => {
-    // API call with debouncedSearch
-  }, [debouncedSearch]);
-}
+---
 
+### 5.  Run Both Apps in Parallel
 
-## Context Providers
+From the root folder, run:
 
-### Theme Provider
-tsx
-import { ThemeProvider } from 'micro-ui-kit';
+```bash
+npm run dev
+```
 
-function App() {
-  return (
-    <ThemeProvider>
-      <YourApp />
-    </ThemeProvider>
-  );
-}
+This will launch both `main-app` and `dashboard-app` with full HMR support for the shared `lib-worko-ai`.
 
+---
 
-### Notification Provider
-tsx
-import { NotificationProvider } from 'micro-ui-kit';
+##  Tips & Gotchas
 
-function App() {
-  return (
-    <NotificationProvider>
-      <YourApp />
-    </NotificationProvider>
-  );
-}
+*  Changes in `lib-worko-ai/src` will hot-reload in both apps.
+*  After editing exports in the shared lib, restart the dev servers.
+*  Aliasing should only be used for dev — avoid it in production unless mapped via build config.
+*  Avoid compiling or bundling the shared lib during development — HMR works directly off source.
 
-
-## Utility Functions
-
-### Format Utilities
-tsx
-import { formatDate, formatCurrency } from 'micro-ui-kit/utils';
-
-const date = formatDate(new Date(), 'yyyy-MM-dd');
-const price = formatCurrency(1000, 'USD');
-
-
-### Validation Utilities
-tsx
-import { validateEmail, validatePassword } from 'micro-ui-kit/utils';
-
-const isValidEmail = validateEmail('user@example.com');
-const isValidPassword = validatePassword('password123');
-
-
-## Development
-
-To contribute to this library:
-
-1. Clone the repository
-2. Install dependencies:
-   
-bash
-   npm install
-
-3. Start development server:
-   
-bash
-   npm run dev
-
-4. Run tests:
-   
-bash
-   npm test
-
-5. Build the library:
-   
-bash
-   npm run build
-
-
-## Testing
-
-Each component and utility includes comprehensive tests. Run the test suite:
-
-bash
-npm test           # Run tests once
-npm run test:watch # Run tests in watch mode
-
-
-## Storybook Documentation
-
-View component documentation and examples:
-
-bash
-npm run storybook
-
-
-## License
-
-MIT
-
-## Contributing
-
-1. Fork the repository
-2. Create your feature branch
-3. Commit your changes
-4. Push to the branch
-5. Create a new Pull Request
+---
