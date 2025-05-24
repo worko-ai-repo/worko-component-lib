@@ -1,5 +1,5 @@
-import { defineConfig } from 'vite';
-import react from '@vitejs/plugin-react';
+import { defineConfig } from "vite";
+import react from "@vitejs/plugin-react";
 
 import path from "path";
 // https://vite.dev/config/
@@ -36,16 +36,4 @@ export default defineConfig({
     },
     open: true, // Manually open the browser window upon starting the server
   },
-  build: {
-    outDir: 'dist',
-    lib: {
-      entry: 'src/index.ts', // or .tsx
-      name: 'LibWorkoAI',
-      formats: ['es', 'cjs'],
-      fileName: (format) => `index.${format}.js`,
-    },
-    rollupOptions: {
-      external: ['react', 'react-dom'],
-    }
-  }
 });
