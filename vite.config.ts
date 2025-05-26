@@ -1,12 +1,19 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
-
+import dts from 'vite-plugin-dts';
 import path from "path";
 // https://vite.dev/config/
 export default defineConfig({
-  plugins: [react()],
-  envDir: "./environments", // Manually specify the directory where the environment files are located
-  envPrefix: "APP_", // Manually specify the prefix for the environment variables
+  plugins: [
+    react(),
+    dts({
+      entryRoot: "./src", // CONFIRMED: This should be './src', not 'dist'
+      outDir: "dist",
+      tsconfigPath: './tsconfig.app.json',
+    })
+  ],
+  envDir: "./environments",
+  envPrefix: "APP_",
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "src"), // Add alias for `src`
@@ -31,9 +38,31 @@ export default defineConfig({
       "/cognito": {
         target: "https://cognito-idp.ap-south-1.amazonaws.com",
         changeOrigin: true,
-        rewrite: (path: any) => path.replace(/^\/cognito/, ""),
+        rewrite: (path) => path.replace(/^\/cognito/, ""),
       },
     },
-    open: true, // Manually open the browser window upon starting the server
+    open: true,
   },
+  build: {
+    lib: {
+      // Your main entry point for the library (where you export everything)
+      entry: path.resolve(__dirname, 'src/index.ts'),
+      name: 'LibWorkoAi', 
+      fileName: (format) => `index.${format}.js` // Naming convention for the output files
+    },
+    rollupOptions: {
+      // Make sure to externalize dependencies that shouldn't be bundled
+      // into your library, but rather be provided by the consuming app.
+      // These should match your peerDependencies in package.json.
+      external: ['react', 'react-dom'],
+      output: {
+        // Global variables for externalized deps if used in UMD/IIFE
+        globals: {
+          react: 'React',
+          'react-dom': 'ReactDOM'
+        }
+      }
+    }
+  }
+  // --- END ADDITION ---
 });

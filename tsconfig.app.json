@@ -12,18 +12,17 @@
 		"skipLibCheck": true,
 
 		/* Bundler mode */
-		"moduleResolution": "node", //moveback to bundler if required
+		"moduleResolution": "bundler", //moveback to bundler if required
 		"allowImportingTsExtensions": true,
 		"isolatedModules": true,
 		"moduleDetection": "force",
 		"noEmit": true,
 		"jsx": "react-jsx",
-
 		/* Linting */
 		"strict": true,
 		"declaration": false,
-		"noUnusedLocals": false, //Enable for strict unused locals
-		"noUnusedParameters": false, //Enable for strict unused parameters
+		"noUnusedLocals": true, //Enable for strict unused locals
+		"noUnusedParameters": true, //Enable for strict unused parameters
 		"noFallthroughCasesInSwitch": true,
 		"noUncheckedSideEffectImports": true,
 

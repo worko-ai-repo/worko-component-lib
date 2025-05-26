@@ -2,8 +2,6 @@ import { useCallback } from "react";
 import { getToastOptions } from "@Utils/Toast.utils";
 import { toast } from "react-toastify";
 import CognitoServiceObj from "@Utils/Cognito.utils";
-import { set } from "react-hook-form";
-
 export const useCrossAppAuth = () => {
   const isLoggedIn  = CognitoServiceObj.getAccessToken() 
   const navigate = useCallback((targetHref: string) => {
